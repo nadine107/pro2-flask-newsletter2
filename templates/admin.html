@@ -9,13 +9,24 @@
     <h1>Newsletter-Anmeldungen</h1>
 
     <table>
+        <tr>Email</tr>
+        <tr>Name</tr>
+        <tr>Nachname</tr>
+        <tr>Löschen</tr>
+    
     {% for anmeldung in daten %}
 
         <tr>
-            <td>{{ anmeldung.email }}</td>
+            <th>{{ anmeldung.email }}</th>
+            <th>{{ anmeldung.name }}</th>
+            <th> {{ anmeldung.nachname }}</th>
+            <th><a href="/delete/{{ anmedlung.id }}">Hier klickern</a></th>
         </tr>
 
     {% endfor %}
     </table>
+    <ul>
+        <a href="/">Weitere Person erfassen</a>
+    </ul>
 </body>
 </html>

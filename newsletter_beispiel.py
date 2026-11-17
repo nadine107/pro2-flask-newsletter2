@@ -1,18 +1,15 @@
-from flask import Flask, render_template, redirect, request, make_response
-import json
+from flask import Flask, render_template, request
 
-# App-Objekt erstellen
-app = Flask('NewsletterApp')
+from verwaltung import (
+    add_person,
+    delete_person,
+    get_person_for_id,
+    get_persons,
 
-# Hilfsfunktionen zum Laden und Speichern der Daten
-def laden():
-    f = open('newsletter.json', 'r')
-    return json.load(f)
+)
 
-def speichern(data):
-    f = open('newsletter.json', 'w')
-    json.dump(data, f, indent=2)
-    f.close()
+app = Flask(__name__)
+
 
 # Startseite
 @app.route('/')
@@ -20,39 +17,33 @@ def index():
     return render_template('index.html')
 
 # Anmeldeformular verarbeiten
-@app.route('/anmelden', methods=['POST'])
+@app.route('/anmelden', methods=['GET', 'POST'])
 def anmeldung():
-    # Daten aus dem Formular holen
-    email = request.form['email']
-    vorname = request.form['vorname']
-    nachname = request.form['nachname']
+    if request.method == "POST":
+        try:
+            email = request.form.get('email')
+            vorname = request.form.get('vorname')
+            nachname = request.form.get('nachname')
+            id = add_person(email, vorname, nachname)
+        except ValueError or '@' not in email:
+            return "Eingabefehler", 400
+        
+        #Ergebnisseite anzeigen
+        return render_template("anmeldung.html", email=email, vorname=vorname, nachname=nachname)
+    return render_template("index.html")
 
-    # ein möglicher, aber noch nicht ausreichender Test auf eine gültige E-Mail-Adresse
-    if '@' not in email:
-        # im Fehlerfall wird ein HTTP-Statuscode 400 zurückgegeben
-        return "Keine gültige E-Mail", 400
-
-    # bisherige Daten aus der Datei laden
-    daten = laden()
-
-    # neues Dictionary mit den Daten des neuen Abonnenten
-    daten.append({
-        "email": email,
-        "vorname": vorname,
-        "nachname": nachname
-    })
-
-    # speichern der Daten in der Datei
-    speichern(daten)
-
-    # Ergebnisseite anzeigen
-    return render_template('anmeldung.html', email=email, vorname=vorname, nachname=nachname)
+@app.route("/delete/<id>")
+def delete(id):
+    # notwendig, um Information zur gelöschten Person ausgeben zu können.
+    person = get_person_for_id(id)
+    delete_person(id)
+    return render_template("delete.html", name=person.name, id=person.id)
 
 # Adminseite, zeigt alle Abonnenten an
 @app.route('/admin')
-def admin():
-    daten = laden()
-    return render_template('admin.html', daten=daten)
+def anzeigen():
+    anmeldungen= get_persons()
+    return render_template('admin.html', anmeldung=anmeldung)
 
-# Starten der Anwendung
-app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
