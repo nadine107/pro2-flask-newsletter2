@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Column, String, Integer, Float
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import sessionmaker
 
 engine = create_engine("sqlite:///beispiel.db", echo=True)
@@ -40,3 +40,9 @@ def delete_person(id):
     with Session() as session:
         session.query(Person).filter(Person.id == id).delete()
         session.commit()
+
+def update_person():
+    with Session() as session:
+        session.query(Person).update(Person.id == id)
+        return get_persons
+        

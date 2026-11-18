@@ -5,6 +5,7 @@ from verwaltung import (
     delete_person,
     get_person_for_id,
     get_persons,
+    update_person,
 
 )
 
@@ -42,8 +43,17 @@ def delete(id):
 # Adminseite, zeigt alle Abonnenten an
 @app.route('/admin')
 def anzeigen():
-    anmeldungen= get_persons()
-    return render_template('admin.html', anmeldung=anmeldung)
+    anmeldung = get_persons()
+    return render_template("admin.html", anmeldung=anmeldung)
+
+@app.route("/update", methods=["POST"])
+def update():
+    id = request.form.get("id")
+    name = request.form.get("name")
+    weight = request.form.get("weight")
+    height = request.form.get("height")
+    update_person(id, name, weight, height)
+    return render_template("anmeldung.html", name=name, id=id)
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5002)
